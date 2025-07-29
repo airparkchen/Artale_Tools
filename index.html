@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>楓之谷 Artale 全職業表攻計算器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #4a5568;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .input-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            transform: scale(1.2);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .result-section {
+            margin-bottom: 25px;
+        }
+
+        .result-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .weapon-result {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .weapon-result h4 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            padding: 2px 0;
+        }
+
+        .stat-label {
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .efficiency-section {
+            background: #edf2f7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .job-info {
+            background: #e6fffa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #38b2ac;
+        }
+
+        .special-effect {
+            background: #fff5f5;
+            border: 1px solid #fed7d7;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #c53030;
+            font-weight: 500;
+        }
+
+        .footer {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            color: #718096;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🍁 楓之谷 Artale 表攻計算器</h1>
+            <p>支援全職業武器係數計算 | 基於模組化清潔架構設計</p>
+        </header>
+
+        <div class="calculator-container">
+            <!-- 輸入面板 -->
+            <div class="input-panel">
+                <h2>📊 角色資料輸入</h2>
+                
+                <div class="form-group">
+                    <label for="jobSelect">選擇職業</label>
+                    <select id="jobSelect" onchange="updateJobInfo()">
+                        <option value="">請選擇職業</option>
+                        <option value="GUNNER">神槍手</option>
+                        <option value="DRAGON_KNIGHT">龍騎士</option>
+                        <option value="CRUSADER">十字軍</option>
+                        <option value="ROGUE">神偷</option>
+                        <option value="ASSASSIN">暗殺者</option>
+                        <option value="RANGER">遊俠</option>
+                        <option value="SNIPER">狙擊手</option>
+                        <option value="FIGHTER">格鬥家</option>
+                    </select>
+                </div>
+
+                <div id="jobInfo" class="job-info" style="display: none;">
+                    <div id="jobDetails"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="primaryStat" id="primaryStatLabel">主屬性</label>
+                    <input type="number" id="primaryStat" min="1" placeholder="請輸入主屬性值">
+                </div>
+
+                <div class="form-group">
+                    <label for="secondaryStat" id="secondaryStatLabel">副屬性</label>
+                    <input type="number" id="secondaryStat" min="0" placeholder="請輸入副屬性值">
+                </div>
+
+                <div class="form-group">
+                    <label for="totalAttack">總攻擊力</label>
+                    <input type="number" id="totalAttack" min="1" placeholder="請輸入總攻擊力">
+                </div>
+
+                <div class="form-group">
+                    <label for="level">等級 (選填)</label>
+                    <input type="number" id="level" min="1" max="200" placeholder="角色等級">
+                </div>
+
+                <div class="form-group" id="bubbleEffectGroup" style="display: none;">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="bubbleEffect">
+                        <label for="bubbleEffect">泡泡效果 (+20 攻擊力)</label>
+                    </div>
+                </div>
+
+                <button class="calculate-btn" onclick="calculateAttack()">
+                    🧮 計算表攻
+                </button>
+            </div>
+
+            <!-- 結果面板 -->
+            <div class="result-panel">
+                <h2>📈 計算結果</h2>
+                <div id="resultContent">
+                    <div style="text-align: center; color: #718096; padding: 40px;">
+                        <p>請選擇職業並輸入角色資料後點擊計算</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>© 2025 楓之谷 Artale 表攻計算器 | Lindu嘟臭甲</p>
+            <p>適用於 GitHub Pages 靜態部署</p>
+        </footer>
+    </div>
+
+    <script>
+        // ============================================================================
+        // 配置層 - 遊戲數據和職業配置
+        // ============================================================================
+        
+        const JobType = {
+            GUNNER: 'GUNNER',
+            DRAGON_KNIGHT: 'DRAGON_KNIGHT',
+            CRUSADER: 'CRUSADER',
+            ROGUE: 'ROGUE',
+            ASSASSIN: 'ASSASSIN',
+            RANGER: 'RANGER',
+            SNIPER: 'SNIPER',
+            FIGHTER: 'FIGHTER'
+        };
+
+        const WeaponType = {
+            GUN: 'GUN',
+            SPEAR: 'SPEAR',
+            POLEARM: 'POLEARM',
+            ONE_HAND_SWORD: 'ONE_HAND_SWORD',
+            TWO_HAND_SWORD: 'TWO_HAND_SWORD',
+            ONE_HAND_AXE: 'ONE_HAND_AXE',
+            TWO_HAND_AXE: 'TWO_HAND_AXE',
+            DAGGER: 'DAGGER',
+            BOW: 'BOW',
+            CROSSBOW: 'CROSSBOW',
+            KNUCKLE: 'KNUCKLE'
+        };
+
+        const weaponConfigs = {
+            [WeaponType.GUN]: { name: '槍', fixedCoefficient: 3.6 },
+            [WeaponType.SPEAR]: { name: '槍', minCoefficient: 3.6, maxCoefficient: 5.1 },
+            [WeaponType.POLEARM]: { name: '矛', minCoefficient: 3.5, maxCoefficient: 5.2 },
+            [WeaponType.ONE_HAND_SWORD]: { name: '單手劍', fixedCoefficient: 4.2 },
+            [WeaponType.TWO_HAND_SWORD]: { name: '雙手劍', fixedCoefficient: 4.8 },
+            [WeaponType.ONE_HAND_AXE]: { name: '單手斧', minCoefficient: 3.6, maxCoefficient: 4.8 },
+            [WeaponType.TWO_HAND_AXE]: { name: '雙手斧', minCoefficient: 4.0, maxCoefficient: 5.2 },
+            [WeaponType.DAGGER]: { name: '短劍', minCoefficient: 3.6, maxCoefficient: 4.2 },
+            [WeaponType.BOW]: { name: '弓', fixedCoefficient: 3.4 },
+            [WeaponType.CROSSBOW]: { name: '弩', fixedCoefficient: 3.6 },
+            [WeaponType.KNUCKLE]: { name: '拳套', fixedCoefficient: 4.8 }
+        };
+
+        const jobConfigs = {
+            [JobType.GUNNER]: {
+                name: '神槍手',
+                primaryStat: 'DEX',
+                secondaryStat: 'STR',
+                weapons: [WeaponType.GUN],
+                specialMechanics: {}
+            },
+            [JobType.DRAGON_KNIGHT]: {
+                name: '龍騎士',
+                primaryStat: 'STR',
+                secondaryStat: 'DEX',
+                weapons: [WeaponType.SPEAR, WeaponType.POLEARM],
+                specialMechanics: {}
+            },
+            [JobType.CRUSADER]: {
+                name: '十字軍',
+                primaryStat: 'STR',
+                secondaryStat: 'DEX',
+                weapons: [WeaponType.ONE_HAND_SWORD, WeaponType.TWO_HAND_SWORD, 
+                         WeaponType.ONE_HAND_AXE, WeaponType.TWO_HAND_AXE],
+                specialMechanics: {}
+            },
+            [JobType.ROGUE]: {
+                name: '神偷',
+                primaryStat: 'LUK',
+                secondaryStat: 'DEX',
+                weapons: [WeaponType.DAGGER],
+                specialMechanics: {}
+            },
+            [JobType.ASSASSIN]: {
+                name: '暗殺者',
+                primaryStat: 'LUK',
+                secondaryStat: 'DEX',
+                weapons: [WeaponType.DAGGER], // 使用固定3.6係數的短劍
+                specialMechanics: {},
+                customWeaponConfig: { name: '短劍', fixedCoefficient: 3.6 }
+            },
+            [JobType.RANGER]: {
+                name: '遊俠',
+                primaryStat: 'DEX',
+                secondaryStat: 'STR',
+                weapons: [WeaponType.BOW],
+                specialMechanics: {}
+            },
+            [JobType.SNIPER]: {
+                name: '狙擊手',
+                primaryStat: 'DEX',
+                secondaryStat: 'STR',
+                weapons: [WeaponType.CROSSBOW],
+                specialMechanics: {}
+            },
+            [JobType.FIGHTER]: {
+                name: '格鬥家',
+                primaryStat: 'STR',
+                secondaryStat: 'DEX',
+                weapons: [WeaponType.KNUCKLE],
+                specialMechanics: { bubbleEffect: true }
+            }
+        };
+
+        // ============================================================================
+        // 數據模型類
+        // ============================================================================
+        
+        class CharacterStats {
+            constructor(primaryStat, secondaryStat, totalAttack, level = null) {
+                this.primaryStat = primaryStat;
+                this.secondaryStat = secondaryStat;
+                this.totalAttack = totalAttack;
+                this.level = level;
+                
+                if (primaryStat < 0 || secondaryStat < 0 || totalAttack <= 0) {
+                    throw new Error('屬性值不能為負數，攻擊力必須大於0');
+                }
+            }
+        }
+
+        class AttackResult {
+            constructor(weaponName, maxAttack, coefficientUsed) {
+                this.weaponName = weaponName;
+                this.maxAttack = maxAttack;
+                this.coefficientUsed = coefficientUsed;
+            }
+        }
+
+        // ============================================================================
+        // 計算引擎類
+        // ============================================================================
+        
+        class AttackCalculationEngine {
+            constructor(jobConfig) {
+                this.config = jobConfig;
+            }
+            
+            calculateWeaponAttack(stats, weaponType, specialOptions = {}) {
+                const weaponConfig = this.getWeaponConfig(weaponType);
+                
+                // 基礎攻擊力
+                let baseAttack = stats.totalAttack;
+                
+                // 格鬥家泡泡效果
+                if (specialOptions.bubbleEffect && 
+                    this.config.specialMechanics.bubbleEffect) {
+                    baseAttack += 20;
+                }
+                
+                // 計算大表功（最大表攻）
+                const maxCoeff = weaponConfig.fixedCoefficient || weaponConfig.maxCoefficient;
+                const maxAttack = (stats.primaryStat * maxCoeff + stats.secondaryStat) * baseAttack / 100;
+                
+                // 係數顯示
+                const coeffDisplay = weaponConfig.fixedCoefficient ? 
+                    weaponConfig.fixedCoefficient.toString() :
+                    `${weaponConfig.minCoefficient}~${weaponConfig.maxCoefficient}`;
+                
+                return new AttackResult(
+                    weaponConfig.name,
+                    maxAttack,
+                    coeffDisplay
+                );
+            }
+            
+            getWeaponConfig(weaponType) {
+                // 暗殺者特殊處理
+                if (this.config.customWeaponConfig) {
+                    return this.config.customWeaponConfig;
+                }
+                return weaponConfigs[weaponType];
+            }
+        }
+
+        class MultiJobCalculationService {
+            constructor() {
+                this.engines = {};
+                this.initializeEngines();
+            }
+            
+            initializeEngines() {
+                Object.keys(jobConfigs).forEach(jobType => {
+                    this.engines[jobType] = new AttackCalculationEngine(jobConfigs[jobType]);
+                });
+            }
+            
+            calculateJobComplete(jobType, stats, specialOptions = {}) {
+                if (!this.engines[jobType]) {
+                    throw new Error(`不支援的職業類型: ${jobType}`);
+                }
+                
+                const engine = this.engines[jobType];
+                const config = jobConfigs[jobType];
+                
+                // 計算所有武器的表攻
+                const weaponResults = {};
+                config.weapons.forEach(weaponType => {
+                    const result = engine.calculateWeaponAttack(stats, weaponType, specialOptions);
+                    weaponResults[result.weaponName] = result;
+                });
+                
+                // 計算效率資訊
+                const bestResult = Object.values(weaponResults).reduce((best, current) => 
+                    current.maxAttack > best.maxAttack ? current : best
+                );
+                
+                const bestWeaponConfig = engine.getWeaponConfig(config.weapons[0]);
+                const bestCoeff = bestWeaponConfig.fixedCoefficient || bestWeaponConfig.maxCoefficient;
+                
+                const statPerAttack = (stats.primaryStat + stats.secondaryStat / bestCoeff) / stats.totalAttack;
+                const attackPerStat = 1 / statPerAttack;
+                
+                return {
+                    jobName: config.name,
+                    characterStats: stats,
+                    weaponResults: weaponResults,
+                    efficiencyInfo: {
+                        statPerAttack: statPerAttack,
+                        attackPerStat: attackPerStat
+                    },
+                    specialOptions: specialOptions
+                };
+            }
+        }
+
+        // ============================================================================
+        // 全域變數和UI控制
+        // ============================================================================
+        
+        const calculationService = new MultiJobCalculationService();
+
+        function updateJobInfo() {
+            const jobSelect = document.getElementById('jobSelect');
+            const jobInfo = document.getElementById('jobInfo');
+            const jobDetails = document.getElementById('jobDetails');
+            const primaryStatLabel = document.getElementById('primaryStatLabel');
+            const secondaryStatLabel = document.getElementById('secondaryStatLabel');
+            const bubbleEffectGroup = document.getElementById('bubbleEffectGroup');
+            
+            if (!jobSelect.value) {
+                jobInfo.style.display = 'none';
+                bubbleEffectGroup.style.display = 'none';
+                return;
+            }
+            
+            const config = jobConfigs[jobSelect.value];
+            
+            // 更新屬性標籤
+            primaryStatLabel.textContent = `主屬性 (${config.primaryStat})`;
+            secondaryStatLabel.textContent = `副屬性 (${config.secondaryStat})`;
+            
+            // 顯示職業資訊
+            const weapons = config.weapons.map(weaponType => {
+                const weaponConfig = config.customWeaponConfig || weaponConfigs[weaponType];
+                const coeffInfo = weaponConfig.fixedCoefficient ? 
+                    weaponConfig.fixedCoefficient :
+                    `${weaponConfig.minCoefficient}~${weaponConfig.maxCoefficient}`;
+                return `${weaponConfig.name}(${coeffInfo})`;
+            }).join('、');
+            
+            jobDetails.innerHTML = `
+                <strong>${config.name}</strong><br>
+                武器: ${weapons}
+            `;
+            
+            jobInfo.style.display = 'block';
+            
+            // 格鬥家泡泡效果選項
+            if (config.specialMechanics.bubbleEffect) {
+                bubbleEffectGroup.style.display = 'block';
+            } else {
+                bubbleEffectGroup.style.display = 'none';
+            }
+        }
+
+        function calculateAttack() {
+            const jobType = document.getElementById('jobSelect').value;
+            const primaryStat = parseInt(document.getElementById('primaryStat').value);
+            const secondaryStat = parseInt(document.getElementById('secondaryStat').value);
+            const totalAttack = parseInt(document.getElementById('totalAttack').value);
+            const level = document.getElementById('level').value ? 
+                parseInt(document.getElementById('level').value) : null;
+            const bubbleEffect = document.getElementById('bubbleEffect').checked;
+            
+            // 驗證輸入
+            if (!jobType) {
+                alert('請選擇職業');
+                return;
+            }
+            
+            if (!primaryStat || !secondaryStat || !totalAttack || 
+                primaryStat < 1 || secondaryStat < 0 || totalAttack < 1) {
+                alert('請正確填寫所有必填欄位');
+                return;
+            }
+            
+            try {
+                const stats = new CharacterStats(primaryStat, secondaryStat, totalAttack, level);
+                const specialOptions = { bubbleEffect: bubbleEffect };
+                
+                const result = calculationService.calculateJobComplete(jobType, stats, specialOptions);
+                displayResult(result);
+                
+            } catch (error) {
+                alert('計算錯誤: ' + error.message);
+            }
+        }
+
+        function displayResult(result) {
+            const resultContent = document.getElementById('resultContent');
+            const config = jobConfigs[Object.keys(jobConfigs).find(key => 
+                jobConfigs[key].name === result.jobName
+            )];
+            
+            let html = `
+                <div class="result-section fade-in">
+                    <h3>🎯 ${result.jobName} - 角色資訊</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">${config.primaryStat}:</span>
+                        <span class="stat-value">${result.characterStats.primaryStat}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">${config.secondaryStat}:</span>
+                        <span class="stat-value">${result.characterStats.secondaryStat}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">總攻擊力:</span>
+                        <span class="stat-value">${result.characterStats.totalAttack}</span>
+                    </div>
+            `;
+            
+            if (result.characterStats.level) {
+                html += `
+                    <div class="stat-row">
+                        <span class="stat-label">等級:</span>
+                        <span class="stat-value">${result.characterStats.level}</span>
+                    </div>
+                `;
+            }
+            
+            if (result.specialOptions.bubbleEffect) {
+                html += `
+                    <div class="special-effect">
+                        ✨ 泡泡效果: +20 攻擊力
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+            
+            // 武器結果
+            html += `
+                <div class="result-section fade-in">
+                    <h3>⚔️ 各武器大表功結果</h3>
+            `;
+            
+            Object.values(result.weaponResults).forEach(weaponResult => {
+                html += `
+                    <div class="weapon-result">
+                        <h4>${weaponResult.weaponName} (係數: ${weaponResult.coefficientUsed})</h4>
+                        <div class="stat-row">
+                            <span class="stat-label">大表功:</span>
+                            <span class="stat-value">${weaponResult.maxAttack.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `</div>`;
+            
+            // 效率資訊
+            html += `
+                <div class="efficiency-section fade-in">
+                    <h3>📊 效率資訊</h3>
+                    <div class="stat-row">
+                        <span class="stat-label">1攻 = </span>
+                        <span class="stat-value">${result.efficiencyInfo.statPerAttack.toFixed(3)} ${config.primaryStat}</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">1${config.primaryStat} = </span>
+                        <span class="stat-value">${result.efficiencyInfo.attackPerStat.toFixed(3)} 攻擊力</span>
+                    </div>
+                </div>
+            `;
+            
+            resultContent.innerHTML = html;
+        }
+
+        // 頁面載入完成後的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('楓之谷 Artale 表攻計算器已載入');
+        });
+    </script>
+</body>
+</html>index.html
