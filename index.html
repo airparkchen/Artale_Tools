@@ -378,7 +378,7 @@
                 name: '暗殺者',
                 primaryStat: 'LUK',
                 secondaryStat: 'DEX',
-                weapons: [WeaponType.DAGGER], // 使用固定3.6係數的短劍
+                weapons: [WeaponType.DAGGER],
                 specialMechanics: {},
                 customWeaponConfig: { name: '短劍', fixedCoefficient: 3.6 }
             },
@@ -458,7 +458,7 @@
                 // 係數顯示
                 const coeffDisplay = weaponConfig.fixedCoefficient ? 
                     weaponConfig.fixedCoefficient.toString() :
-                    `${weaponConfig.minCoefficient}~${weaponConfig.maxCoefficient}`;
+                    weaponConfig.minCoefficient + '~' + weaponConfig.maxCoefficient;
                 
                 return new AttackResult(
                     weaponConfig.name,
@@ -490,7 +490,7 @@
             
             calculateJobComplete(jobType, stats, specialOptions = {}) {
                 if (!this.engines[jobType]) {
-                    throw new Error(`不支援的職業類型: ${jobType}`);
+                    throw new Error('不支援的職業類型: ' + jobType);
                 }
                 
                 const engine = this.engines[jobType];
@@ -550,22 +550,19 @@
             const config = jobConfigs[jobSelect.value];
             
             // 更新屬性標籤
-            primaryStatLabel.textContent = `主屬性 (${config.primaryStat})`;
-            secondaryStatLabel.textContent = `副屬性 (${config.secondaryStat})`;
+            primaryStatLabel.textContent = '主屬性 (' + config.primaryStat + ')';
+            secondaryStatLabel.textContent = '副屬性 (' + config.secondaryStat + ')';
             
             // 顯示職業資訊
             const weapons = config.weapons.map(weaponType => {
                 const weaponConfig = config.customWeaponConfig || weaponConfigs[weaponType];
                 const coeffInfo = weaponConfig.fixedCoefficient ? 
                     weaponConfig.fixedCoefficient :
-                    `${weaponConfig.minCoefficient}~${weaponConfig.maxCoefficient}`;
-                return `${weaponConfig.name}(${coeffInfo})`;
+                    weaponConfig.minCoefficient + '~' + weaponConfig.maxCoefficient;
+                return weaponConfig.name + '(' + coeffInfo + ')';
             }).join('、');
             
-            jobDetails.innerHTML = `
-                <strong>${config.name}</strong><br>
-                武器: ${weapons}
-            `;
+            jobDetails.innerHTML = '<strong>' + config.name + '</strong><br>武器: ' + weapons;
             
             jobInfo.style.display = 'block';
             
@@ -616,76 +613,62 @@
                 jobConfigs[key].name === result.jobName
             )];
             
-            let html = `
-                <div class="result-section fade-in">
-                    <h3>🎯 ${result.jobName} - 角色資訊</h3>
-                    <div class="stat-row">
-                        <span class="stat-label">${config.primaryStat}:</span>
-                        <span class="stat-value">${result.characterStats.primaryStat}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">${config.secondaryStat}:</span>
-                        <span class="stat-value">${result.characterStats.secondaryStat}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">總攻擊力:</span>
-                        <span class="stat-value">${result.characterStats.totalAttack}</span>
-                    </div>
-            `;
+            let html = '<div class="result-section fade-in">' +
+                '<h3>🎯 ' + result.jobName + ' - 角色資訊</h3>' +
+                '<div class="stat-row">' +
+                    '<span class="stat-label">' + config.primaryStat + ':</span>' +
+                    '<span class="stat-value">' + result.characterStats.primaryStat + '</span>' +
+                '</div>' +
+                '<div class="stat-row">' +
+                    '<span class="stat-label">' + config.secondaryStat + ':</span>' +
+                    '<span class="stat-value">' + result.characterStats.secondaryStat + '</span>' +
+                '</div>' +
+                '<div class="stat-row">' +
+                    '<span class="stat-label">總攻擊力:</span>' +
+                    '<span class="stat-value">' + result.characterStats.totalAttack + '</span>' +
+                '</div>';
             
             if (result.characterStats.level) {
-                html += `
-                    <div class="stat-row">
-                        <span class="stat-label">等級:</span>
-                        <span class="stat-value">${result.characterStats.level}</span>
-                    </div>
-                `;
+                html += '<div class="stat-row">' +
+                    '<span class="stat-label">等級:</span>' +
+                    '<span class="stat-value">' + result.characterStats.level + '</span>' +
+                '</div>';
             }
             
             if (result.specialOptions.bubbleEffect) {
-                html += `
-                    <div class="special-effect">
-                        ✨ 泡泡效果: +20 攻擊力
-                    </div>
-                `;
+                html += '<div class="special-effect">✨ 泡泡效果: +20 攻擊力</div>';
             }
             
-            html += `</div>`;
+            html += '</div>';
             
             // 武器結果
-            html += `
-                <div class="result-section fade-in">
-                    <h3>⚔️ 各武器大表功結果</h3>
-            `;
+            html += '<div class="result-section fade-in">' +
+                '<h3>⚔️ 各武器大表功結果</h3>';
             
             Object.values(result.weaponResults).forEach(weaponResult => {
-                html += `
-                    <div class="weapon-result">
-                        <h4>${weaponResult.weaponName} (係數: ${weaponResult.coefficientUsed})</h4>
-                        <div class="stat-row">
-                            <span class="stat-label">大表功:</span>
-                            <span class="stat-value">${weaponResult.maxAttack.toFixed(2)}</span>
-                        </div>
-                    </div>
-                `;
+                html += '<div class="weapon-result">' +
+                    '<h4>' + weaponResult.weaponName + ' (係數: ' + weaponResult.coefficientUsed + ')</h4>' +
+                    '<div class="stat-row">' +
+                        '<span class="stat-label">大表功:</span>' +
+                        '<span class="stat-value">' + weaponResult.maxAttack.toFixed(2) + '</span>' +
+                    '</div>' +
+                '</div>';
             });
             
-            html += `</div>`;
+            html += '</div>';
             
             // 效率資訊
-            html += `
-                <div class="efficiency-section fade-in">
-                    <h3>📊 效率資訊</h3>
-                    <div class="stat-row">
-                        <span class="stat-label">1攻 = </span>
-                        <span class="stat-value">${result.efficiencyInfo.statPerAttack.toFixed(3)} ${config.primaryStat}</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">1${config.primaryStat} = </span>
-                        <span class="stat-value">${result.efficiencyInfo.attackPerStat.toFixed(3)} 攻擊力</span>
-                    </div>
-                </div>
-            `;
+            html += '<div class="efficiency-section fade-in">' +
+                '<h3>📊 效率資訊</h3>' +
+                '<div class="stat-row">' +
+                    '<span class="stat-label">1攻 = </span>' +
+                    '<span class="stat-value">' + result.efficiencyInfo.statPerAttack.toFixed(3) + ' ' + config.primaryStat + '</span>' +
+                '</div>' +
+                '<div class="stat-row">' +
+                    '<span class="stat-label">1' + config.primaryStat + ' = </span>' +
+                    '<span class="stat-value">' + result.efficiencyInfo.attackPerStat.toFixed(3) + ' 攻擊力</span>' +
+                '</div>' +
+            '</div>';
             
             resultContent.innerHTML = html;
         }
@@ -696,4 +679,4 @@
         });
     </script>
 </body>
-</html>index.html
+</html>
